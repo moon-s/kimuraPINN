@@ -117,3 +117,86 @@ class KimuraPINN(nn.Module):
         encoded = self._encode(x, t, context)
         return self.output_transform(self.net(encoded))
 
+
+class MultiPopKimuraPINN(nn.Module):
+    """Positive neural density model for K-population allele frequencies."""
+
+    def __init__(
+        self,
+        n_populations: int = 2,
+        hidden_dim: int = 64,
+        num_layers: int = 4,
+        fourier_features: int = 0,
+        context_dim: int = 0,
+        activation: Optional[nn.Module] = None,
+    ) -> None:
+        super().__init__()
+        if n_populations != 2:
+            raise ValueError("Milestone 6A supports n_populations=2 only")
+        if hidden_dim <= 0:
+            raise ValueError("hidden_dim must be positive")
+        if num_layers <= 0:
+            raise ValueError("num_layers must be positive")
+        if fourier_features < 0:
+            raise ValueError("fourier_features must be non-negative")
+        if context_dim < 0:
+            raise ValueError("context_dim must be non-negative")
+
+        self.n_populations = int(n_populations)
+        self.fourier_features = int(fourier_features)
+        self.context_dim = int(context_dim)
+        self.activation = activation if activation is not None else nn.Tanh()
+
+        input_dim = self.n_populations + 1 + context_dim
+        if self.fourier_features:
+            input_dim += 2 * self.fourier_features * (self.n_populations + 1)
+            frequencies = torch.arange(1, self.fourier_features + 1, dtype=torch.float32)
+            self.register_buffer("fourier_frequencies", frequencies)
+        else:
+            self.register_buffer("fourier_frequencies", torch.empty(0))
+
+        layers: list[nn.Module] = [nn.Linear(input_dim, hidden_dim), self.activation]
+        for _ in range(num_layers - 1):
+            layers.append(ResidualBlock(hidden_dim))
+        layers.append(nn.Linear(hidden_dim, 1))
+        self.net = nn.Sequential(*layers)
+        self.output_transform = nn.Softplus()
+
+    def _encode(self, x: torch.Tensor, t: torch.Tensor, context: Optional[torch.Tensor]) -> torch.Tensor:
+        if x.ndim != 2 or x.shape[1] != self.n_populations:
+            raise ValueError(
+                f"x must have shape [batch, {self.n_populations}], got {tuple(x.shape)}"
+            )
+        if t.ndim != 2 or t.shape[1] != 1:
+            raise ValueError(f"t must have shape [batch, 1], got {tuple(t.shape)}")
+        if x.shape[0] != t.shape[0]:
+            raise ValueError("x and t must have the same batch size")
+
+        features = [x, t]
+        if self.fourier_features:
+            frequencies = self.fourier_frequencies.to(device=x.device, dtype=x.dtype).view(1, 1, -1)
+            xt = torch.cat([x, t], dim=1).unsqueeze(-1)
+            angles = 2.0 * math.pi * xt * frequencies
+            features.extend([torch.sin(angles).flatten(1), torch.cos(angles).flatten(1)])
+
+        if self.context_dim:
+            if context is None:
+                raise ValueError("context is required when context_dim > 0")
+            if context.ndim != 2 or context.shape != (x.shape[0], self.context_dim):
+                raise ValueError(
+                    "context must have shape "
+                    f"[batch, {self.context_dim}], got {tuple(context.shape)}"
+                )
+            features.append(context)
+        elif context is not None and context.shape[0] != x.shape[0]:
+            raise ValueError("context batch size must match x and t")
+        return torch.cat(features, dim=1)
+
+    def forward(
+        self,
+        x: torch.Tensor,
+        t: torch.Tensor,
+        context: Optional[torch.Tensor] = None,
+    ) -> torch.Tensor:
+        """Evaluate non-negative joint density phi(x1, x2, t)."""
+        return self.output_transform(self.net(self._encode(x, t, context)))
