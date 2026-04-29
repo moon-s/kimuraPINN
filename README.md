@@ -28,3 +28,17 @@ Implemented one-population differentiable Kimura components:
 
 Covered by focused tests for forward shape, positivity, PDE residual autograd,
 selection-model modes, smoothness loss, and boundary loss.
+
+## Visualization
+
+Generate run figures with:
+
+```bash
+python scripts/05_visualize_results.py \
+  --run-dir results/time_varying_nfe_test \
+  --log-sfs
+```
+
+Figures are written to `results/time_varying_nfe_test/figures/` as PNG and PDF:
+SFS observed vs predicted, SFS residuals, gamma trajectory, loss history, and
+optionally a `phi(x,t)` density heatmap when `model.pt` loads cleanly.
