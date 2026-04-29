@@ -1,0 +1,28 @@
+seed: 123
+
+simulation:
+  run_name: step_gamma_test
+  population: sim
+  n_pop: 100
+  n_variants: 500
+  n_generations: 50
+
+initial_frequencies:
+  mode: beta
+  alpha: 0.5
+  beta: 8.0
+  eps: 0.001
+
+gamma:
+  mode: step
+  gamma_before: 0.0
+  gamma_after: 8.0
+  t_change: 0.5
+
+demography:
+  mode: constant
+  nu: 1.0
+
+output:
+  gamma_points: 101
+

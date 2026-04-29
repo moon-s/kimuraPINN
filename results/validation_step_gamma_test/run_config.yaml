@@ -1,0 +1,44 @@
+demography:
+  learnable: false
+  mode: constant
+  nu: 1.0
+device: cpu
+h: 0.5
+loss_weights:
+  boundary: 0.01
+  data: 10.0
+  gamma_smoothness: 0.01
+  pde: 1.0
+model:
+  fourier_features: 2
+  hidden_dim: 32
+  num_layers: 3
+output:
+  gamma_points: 101
+projection:
+  max_zero_bins_for_loss: 128
+  n_grid: 128
+  output_chunk_size: 2048
+seed: 123
+selection:
+  breakpoints:
+  - 0.0
+  - 0.25
+  - 0.5
+  - 0.75
+  - 1.0
+  learnable: true
+  mode: piecewise_linear
+  values:
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+  - 0.0
+training:
+  batch_collocation: 64
+  boundary_batch: 64
+  data_loss: mse
+  epochs: 100
+  gamma_grid_size: 64
+  lr: 0.001

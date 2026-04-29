@@ -1,0 +1,22 @@
+demography:
+  mode: constant
+  nu: 1.0
+gamma:
+  gamma_after: 8.0
+  gamma_before: 0.0
+  mode: step
+  t_change: 0.5
+initial_frequencies:
+  alpha: 0.5
+  beta: 8.0
+  eps: 0.001
+  mode: beta
+output:
+  gamma_points: 101
+seed: 123
+simulation:
+  n_generations: 50
+  n_pop: 100
+  n_variants: 500
+  population: sim
+  run_name: step_gamma_test

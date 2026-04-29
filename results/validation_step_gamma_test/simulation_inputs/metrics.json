@@ -1,0 +1,7 @@
+{
+  "gamma_mode": "step",
+  "n_monomorphic": 399,
+  "n_pop": 100,
+  "n_segregating": 101,
+  "n_variants": 500
+}

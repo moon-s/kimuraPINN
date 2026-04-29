@@ -1,0 +1,8 @@
+{
+  "final_sfs_mse": 1.794925859998958,
+  "final_sfs_poisson_nll": 0.5823490023612976,
+  "final_total_loss": 0.0164919551461935,
+  "gamma_mse": 32.45182994417065,
+  "gamma_pearson_correlation": -0.9069613054367442,
+  "interpretation": "Folded SFS validation is qualitative; exact gamma(t) recovery is not guaranteed."
+}
