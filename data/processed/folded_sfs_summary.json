@@ -1,0 +1,30 @@
+{
+  "folded": true,
+  "n_snv_sites_retained": 2298,
+  "n_snvs_retained": 5904,
+  "n_variants_total": 26687,
+  "populations": {
+    "afr": {
+      "n_count_bins": 16740,
+      "n_pop": 33480,
+      "n_projected_segregating": 321,
+      "n_raw_snv_rows_with_an": 4355,
+      "sfs_total_count": 321
+    },
+    "eas": {
+      "n_count_bins": 19850,
+      "n_pop": 39700,
+      "n_projected_segregating": 274,
+      "n_raw_snv_rows_with_an": 4156,
+      "sfs_total_count": 274
+    },
+    "nfe": {
+      "n_count_bins": 556006,
+      "n_pop": 1112012,
+      "n_projected_segregating": 1950,
+      "n_raw_snv_rows_with_an": 5511,
+      "sfs_total_count": 1950
+    }
+  },
+  "sfs_index": "allele_count"
+}

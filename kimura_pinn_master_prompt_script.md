@@ -59,7 +59,7 @@ KimuraPINN/
 ├── pyproject.toml
 ├── data/
 │   ├── raw/
-│   │   └── sample.vcf
+│   │   └── sample.vcf.gz
 │   ├── processed/
 │   └── simulated/
 ├── configs/
@@ -252,7 +252,7 @@ The implementation must be robust to missing fields and should emit informative 
 The repository contains:
 
 ```text
-data/raw/sample.vcf
+data/raw/sample.vcf.gz
 ```
 
 This file contains three genomic blocks with SNVs from gnomAD-like data.
@@ -375,7 +375,7 @@ Process Schematic:
 
 Example:
     python scripts/<script_name>.py \
-        --input data/raw/sample.vcf \
+        --input data/raw/sample.vcf.gz \
         --output-dir data/processed \
         --config configs/single_pop_folded.yaml
 """
@@ -666,7 +666,7 @@ Acceptance criteria:
 
 ```bash
 python scripts/01_vcf_to_folded_sfs.py \
-  --input data/raw/sample.vcf \
+  --input data/raw/sample.vcf.gz \
   --output-dir data/processed \
   --populations afr eas nfe
 ```
@@ -1108,7 +1108,7 @@ Implement at least four validation experiments.
 Input:
 
 ```text
-data/raw/sample.vcf
+data/raw/sample.vcf.gz
 ```
 
 Output:
@@ -1199,7 +1199,7 @@ Update `README.md` to include:
 Include this schematic:
 
 ```text
-sample.vcf
+sample.vcf.gz
    ↓
 SNV filtering + AC/AN extraction
    ↓
@@ -1260,7 +1260,7 @@ pip install -e .
 pytest
 
 python scripts/01_vcf_to_folded_sfs.py \
-  --input data/raw/sample.vcf \
+  --input data/raw/sample.vcf.gz \
   --output-dir data/processed \
   --populations afr eas nfe
 

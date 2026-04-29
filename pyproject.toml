@@ -1,0 +1,14 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "kimurapinn"
+version = "0.1.0"
+description = "Kimura diffusion PINN tools for population genomics"
+requires-python = ">=3.10"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+addopts = "-p no:npe2 -p no:napari -p no:napari-plugin-engine -p no:anyio"
