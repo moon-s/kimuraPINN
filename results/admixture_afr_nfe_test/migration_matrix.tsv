@@ -1,0 +1,5 @@
+source_population	target_population	migration_rate
+afr	afr	0.0
+nfe	afr	0.0010362277971580625
+afr	nfe	0.0010356752900406718
+nfe	nfe	0.0

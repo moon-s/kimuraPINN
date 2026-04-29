@@ -1,0 +1,11 @@
+{
+  "boundary_loss": 0.00675651291385293,
+  "data_loss_a": 0.0013007213128730655,
+  "data_loss_b": 0.0001032106374623254,
+  "epoch": 100,
+  "gamma_smoothness_loss": 0.0005610939115285873,
+  "limitation": "Marginal folded SFS only; migration estimates are effective coupling parameters, not definitive migration rates.",
+  "migration_reg_loss": 5.365542961044412e-07,
+  "pde_loss": 0.026052255183458328,
+  "total_loss": 0.040164750069379807
+}

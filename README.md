@@ -42,3 +42,24 @@ python scripts/05_visualize_results.py \
 Figures are written to `results/time_varying_nfe_test/figures/` as PNG and PDF:
 SFS observed vs predicted, SFS residuals, gamma trajectory, loss history, and
 optionally a `phi(x,t)` density heatmap when `model.pt` loads cleanly.
+
+## Two-Population Admixture Status
+
+The current two-population training path fits a joint density model to marginal
+folded SFS files only:
+
+```bash
+python scripts/04_train_admixture_pinn.py \
+  --sfs-a data/processed/folded_sfs_afr.tsv \
+  --sfs-b data/processed/folded_sfs_nfe.tsv \
+  --population-a afr \
+  --population-b nfe \
+  --config configs/two_pop_admixture.yaml \
+  --output-dir results/admixture_afr_nfe_test \
+  --epochs 100
+```
+
+This is an initial marginal-SFS approximation. True admixture inference requires
+joint SFS, haplotypes, LD, or additional constraints. Current migration estimates
+should be interpreted as effective coupling parameters, not definitive migration
+rates.
