@@ -19,17 +19,22 @@ def make_quadrature_grid(
     device: Optional[torch.device] = None,
     dtype: Optional[torch.dtype] = None,
 ) -> Tuple[torch.Tensor, torch.Tensor]:
-    """Return midpoint quadrature nodes and weights over (eps, 1 - eps)."""
+    """Return trapezoid quadrature nodes and weights over (eps, 1 - eps)."""
     if n_points <= 0:
         raise ValueError("n_points must be positive")
     if not (0.0 <= eps < 0.5):
         raise ValueError("eps must be in [0, 0.5)")
     dtype = dtype if dtype is not None else torch.float32
     width = 1.0 - 2.0 * eps
-    step = width / float(n_points)
-    indices = torch.arange(n_points, device=device, dtype=dtype)
-    x_grid = eps + (indices + 0.5) * step
+    if n_points == 1:
+        x_grid = torch.tensor([0.5], device=device, dtype=dtype)
+        weights = torch.tensor([width], device=device, dtype=dtype)
+        return x_grid, weights
+    x_grid = torch.linspace(eps, 1.0 - eps, n_points, device=device, dtype=dtype)
+    step = width / float(n_points - 1)
     weights = torch.full((n_points,), step, device=device, dtype=dtype)
+    weights[0] = step / 2.0
+    weights[-1] = step / 2.0
     return x_grid, weights
 
 
@@ -86,8 +91,8 @@ def project_density_to_sfs(
 
     k_values = torch.arange(n + 1, device=phi.device, dtype=phi.dtype).view(-1, 1)
     log_kernel = binomial_log_prob(k_values, n, x.view(1, -1))
-    kernel = torch.exp(log_kernel)
-    unfolded = torch.sum(kernel * (phi * w).view(1, -1), dim=1)
+    log_weighted_phi = torch.log((phi * w).clamp_min(torch.finfo(phi.dtype).tiny)).view(1, -1)
+    unfolded = torch.exp(torch.logsumexp(log_kernel + log_weighted_phi, dim=1))
     return _normalize_if_requested(unfolded, normalize)
 
 
@@ -117,9 +122,9 @@ def project_density_to_observed_k(
     k = _as_column_free_vector(k_values.to(device=phi.device), "k_values").to(dtype=phi.dtype)
     if torch.any(k < 0) or torch.any(k > n):
         raise ValueError("k_values must be between 0 and n")
-    weighted_phi = (phi * w).view(1, -1)
+    log_weighted_phi = torch.log((phi * w).clamp_min(torch.finfo(phi.dtype).tiny)).view(1, -1)
     log_kernel = binomial_log_prob(k.view(-1, 1), n, x.view(1, -1))
-    projected = torch.sum(torch.exp(log_kernel) * weighted_phi, dim=1)
+    projected = torch.exp(torch.logsumexp(log_kernel + log_weighted_phi, dim=1))
 
     if folded:
         if torch.any(k < 1) or torch.any(k > n // 2):
@@ -128,7 +133,7 @@ def project_density_to_observed_k(
         add_complement = complement != k
         if torch.any(add_complement):
             comp_log_kernel = binomial_log_prob(complement.view(-1, 1), n, x.view(1, -1))
-            comp_projected = torch.sum(torch.exp(comp_log_kernel) * weighted_phi, dim=1)
+            comp_projected = torch.exp(torch.logsumexp(comp_log_kernel + log_weighted_phi, dim=1))
             projected = projected + torch.where(add_complement, comp_projected, torch.zeros_like(projected))
 
     return _normalize_if_requested(projected, normalize)
@@ -201,4 +206,3 @@ def load_folded_sfs_tsv(path: Union[str, Path]) -> Tuple[torch.Tensor, int, torc
     observed_counts = torch.tensor(ordered["count"].to_numpy(), dtype=torch.float32)
     k_values = torch.tensor(ordered["k_folded"].to_numpy(), dtype=torch.long)
     return observed_counts, int(n_values[0]), k_values, populations[0]
-
